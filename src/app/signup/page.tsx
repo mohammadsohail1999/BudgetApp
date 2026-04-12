@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, FormEvent } from "react";
 import AuthCard from "@/components/AuthCard";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { FormEvent, useState } from "react";
 
 interface FormValues {
   name: string;

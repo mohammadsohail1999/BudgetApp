@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import Link from "next/link";
 import AuthCard from "@/components/AuthCard";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Link from "next/link";
+import { FormEvent, useState } from "react";
 
 interface FormValues {
   email: string;
@@ -48,7 +48,6 @@ export default function LoginPage() {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   }
-
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

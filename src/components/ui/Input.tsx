@@ -7,7 +7,14 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   id: string;
 }
 
-export default function Input({ label, labelSuffix, error, id, className, ...props }: InputProps) {
+export default function Input({
+  label,
+  labelSuffix,
+  error,
+  id,
+  className,
+  ...props
+}: InputProps) {
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between">
@@ -38,7 +45,10 @@ export default function Input({ label, labelSuffix, error, id, className, ...pro
         {...props}
       />
       {error && (
-        <p id={`${id}-error`} className="text-xs text-red-500 dark:text-red-400">
+        <p
+          id={`${id}-error`}
+          className="text-xs text-red-500 dark:text-red-400"
+        >
           {error}
         </p>
       )}
