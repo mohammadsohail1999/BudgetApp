@@ -34,7 +34,7 @@ const UserSchema = new Schema<IUser>(
   {
     timestamps: true, // createdAt + updatedAt
     versionKey: false, // no __v field
-  }
+  },
 );
 
 /**
