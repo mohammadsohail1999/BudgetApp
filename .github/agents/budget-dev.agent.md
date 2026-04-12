@@ -1,19 +1,8 @@
 ---
 name: Budget Dev
 description: Full-stack dev agent for the Budget App. Expert in Next.js 16 App Router, MongoDB Atlas, NextAuth v5, TypeScript strict, React 19, and Tailwind v4. Writes production-ready, security-conscious code aligned with this project's conventions.
-tools:
-  - read_file
-  - replace_string_in_file
-  - multi_replace_string_in_file
-  - create_file
-  - file_search
-  - grep_search
-  - semantic_search
-  - run_in_terminal
-  - get_errors
-  - list_dir
-  - manage_todo_list
-  - memory
+tools:vscode/extensions, vscode/getProjectSetupInfo, vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/resolveMemoryFileUri, vscode/runCommand, vscode/vscodeAPI, vscode/askQuestions, execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/createAndRunTask, execute/runNotebookCell, execute/testFailure, execute/runInTerminal, execute/runTests, read/terminalSelection, read/terminalLastCommand, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, agent/runSubagent, browser/openBrowserPage, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/changes, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, search/usages, web/fetch, web/githubRepo, gitkraken/git_add_or_commit, gitkraken/git_blame, gitkraken/git_branch, gitkraken/git_checkout, gitkraken/git_log_or_diff, gitkraken/git_push, gitkraken/git_stash, gitkraken/git_status, gitkraken/git_worktree, gitkraken/gitkraken_workspace_list, gitkraken/gitlens_commit_composer, gitkraken/gitlens_launchpad, gitkraken/gitlens_start_review, gitkraken/gitlens_start_work, gitkraken/issues_add_comment, gitkraken/issues_assigned_to_me, gitkraken/issues_get_detail, gitkraken/pull_request_assigned_to_me, gitkraken/pull_request_create, gitkraken/pull_request_create_review, gitkraken/pull_request_get_comments, gitkraken/pull_request_get_detail, gitkraken/repository_get_file_content, vscode.mermaid-chat-features/renderMermaidDiagram, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, todo
+[vscode/extensions, vscode/getProjectSetupInfo, vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/resolveMemoryFileUri, vscode/runCommand, vscode/vscodeAPI, vscode/askQuestions, execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/createAndRunTask, execute/runNotebookCell, execute/testFailure, execute/runInTerminal, execute/runTests, read/terminalSelection, read/terminalLastCommand, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, agent/runSubagent, browser/openBrowserPage, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/changes, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, search/usages, web/fetch, web/githubRepo, todo]
 ---
 
 # Budget Dev Agent
@@ -67,13 +56,16 @@ src/
       Button.tsx
       Input.tsx
   lib/
-    db.ts               # MongoDB Atlas connection singleton (connectDB)
-    auth.ts             # NextAuth config export (to be created)
+    db.ts                    # MongoDB Atlas connection singleton (connectDB)
+    auth.ts                  # NextAuth config export (to be created)
+    defaultCategories.ts     # DEFAULT_CATEGORIES seed data (11 entries, seeded on signup)
   models/
-    User.ts             # Mongoose User model (IUser interface + schema)
-    Transaction.ts      # Mongoose Transaction model (to be created)
+    User.ts             # IUser + schema (password select:false, timestamps)
+    Category.ts         # ICategory + schema (compound unique index: userId+name)
+    Transaction.ts      # ITransaction + schema (3 indexes for query patterns)
+    MonthlyBudget.ts    # IMonthlyBudget + schema (unique: userId+categoryId+year+month)
   types/
-    index.ts            # SafeUser, Transaction, TransactionType, ApiResponse
+    index.ts            # SafeUser, Category, Transaction, MonthlyBudget, MonthlySummary, ApiResponse<T>
 ```
 
 - Import alias `@/*` → `src/*`
@@ -197,7 +189,9 @@ export default async function DashboardPage() {
   - `src/models/User.ts` — `IUser` interface + Mongoose schema with `password: { select: false }`, `versionKey: false`, `timestamps: true`.
   - `src/types/index.ts` — `SafeUser`, `Transaction`, `TransactionType`, `ApiResponse<T>`.
   - `.env.local` — `MONGODB_URI` + `NEXTAUTH_SECRET` placeholders (git-ignored). Copy `.env.example` to fill in.
-- **Not yet implemented**: NextAuth backend, User registration API route, protected dashboard, transaction CRUD.
+- Mongoose models complete: `User`, `Category`, `Transaction`, `MonthlyBudget`.
+- Default category seed data ready in `src/lib/defaultCategories.ts` (11 categories, seeded per-user on signup).
+- **Not yet implemented**: NextAuth backend, User registration API route (+ category seeding), protected dashboard, transaction CRUD.
 
 ## When This File Should Be Updated
 
