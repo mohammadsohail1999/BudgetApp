@@ -68,3 +68,21 @@ public/             # Static assets served at /
 - **Server-first** — default to Server Components; use `"use client"` as a last resort
 - **Co-locate** — keep component, styles, and tests near the feature they serve
 - **Env vars** — prefix browser-exposed vars with `NEXT_PUBLIC_`; never hardcode secrets
+
+## Project Docs — Read Before Implementing
+
+The `docs/` folder contains binding conventions for this project. Before writing any code, read every doc that is relevant to the feature being implemented. These docs take precedence over general best practices.
+
+| Doc | Read before working on... |
+|---|---|
+| [`docs/ui.md`](docs/ui.md) | Any UI component, page, layout, theme, dark mode, forms, data display |
+| [`docs/conventions.md`](docs/conventions.md) | Any new file, naming, folder structure, TypeScript patterns |
+| [`docs/api.md`](docs/api.md) | Any Route Handler, Server Action, request validation, API response |
+| [`docs/database.md`](docs/database.md) | Any Mongoose model, query, aggregation, index, or DB utility |
+| [`docs/auth.md`](docs/auth.md) | Any authentication, session access, middleware, or protected route |
+
+**Rules:**
+- If a doc exists for the area you are touching, you **must** read it before writing code.
+- If a decision in the docs conflicts with your training data or general conventions, **the doc wins**.
+- If you introduce a pattern not covered by any doc, flag it and suggest updating the relevant doc.
+- If a doc does not exist yet, follow the patterns already established in the codebase.
