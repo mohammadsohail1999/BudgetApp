@@ -16,11 +16,18 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+
+const NAV_LINKS = [
+  { label: "Dashboard", href: "/app/dashboard" },
+  { label: "Transactions", href: "/app/transactions" },
+];
 
 export default function Navbar() {
   const { data: session } = useSession();
   const { mode, toggleMode } = useThemeMode();
+  const pathname = usePathname();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -40,19 +47,44 @@ export default function Navbar() {
       elevation={0}
       sx={{ borderBottom: 1, borderColor: "divider" }}
     >
-      <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Typography
-          variant="h6"
-          component={Link}
-          href="/app/dashboard"
-          sx={{
-            textDecoration: "none",
-            color: "text.primary",
-            fontWeight: 700,
-          }}
-        >
-          Budget App
-        </Typography>
+      <Toolbar sx={{ justifyContent: "space-between", gap: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+          <Typography
+            variant="h6"
+            component={Link}
+            href="/app/dashboard"
+            sx={{ textDecoration: "none", color: "text.primary", fontWeight: 700, flexShrink: 0 }}
+          >
+            Budget App
+          </Typography>
+
+          <Box component="nav" sx={{ display: "flex", gap: 0.5 }}>
+            {NAV_LINKS.map(({ label, href }) => {
+              const active = pathname === href;
+              return (
+                <Typography
+                  key={href}
+                  component={Link}
+                  href={href}
+                  variant="body2"
+                  sx={{
+                    px: 1.5,
+                    py: 0.75,
+                    borderRadius: 1,
+                    textDecoration: "none",
+                    fontWeight: active ? 600 : 400,
+                    color: active ? "primary.main" : "text.secondary",
+                    bgcolor: active ? "action.selected" : "transparent",
+                    "&:hover": { bgcolor: "action.hover", color: "text.primary" },
+                    transition: "background-color 0.15s, color 0.15s",
+                  }}
+                >
+                  {label}
+                </Typography>
+              );
+            })}
+          </Box>
+        </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <IconButton
