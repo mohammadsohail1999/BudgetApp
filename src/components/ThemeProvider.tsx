@@ -3,6 +3,8 @@
 import { darkTheme, lightTheme } from "@/lib/theme";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import {
   createContext,
   useCallback,
@@ -72,8 +74,10 @@ export default function ThemeProvider({
   return (
     <ThemeContext.Provider value={contextValue}>
       <MuiThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <CssBaseline />
+          {children}
+        </LocalizationProvider>
       </MuiThemeProvider>
     </ThemeContext.Provider>
   );
