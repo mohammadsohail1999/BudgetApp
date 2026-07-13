@@ -35,27 +35,40 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  await connectDB();
-
-  const exists = await User.findOne({ email: parsed.data.email }).lean();
-  if (exists) {
+  try {
+    await connectDB();
+  } catch {
     return NextResponse.json(
-      { ok: false, error: "An account with this email already exists." },
-      { status: 409 },
+      { ok: false, error: "Database connection failed. Please try again later." },
+      { status: 503 },
     );
   }
 
-  const hash = await bcrypt.hash(parsed.data.password, 12);
-  const user = await User.create({
-    name: parsed.data.name,
-    email: parsed.data.email,
-    password: hash,
-  });
+  try {
+    const exists = await User.findOne({ email: parsed.data.email }).lean();
+    if (exists) {
+      return NextResponse.json(
+        { ok: false, error: "An account with this email already exists." },
+        { status: 409 },
+      );
+    }
 
-  // Seed default categories for this user
-  await Category.insertMany(
-    DEFAULT_CATEGORIES.map((cat) => ({ ...cat, userId: user._id })),
-  );
+    const hash = await bcrypt.hash(parsed.data.password, 12);
+    const user = await User.create({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      password: hash,
+    });
 
-  return NextResponse.json({ ok: true }, { status: 201 });
+    await Category.insertMany(
+      DEFAULT_CATEGORIES.map((cat) => ({ ...cat, userId: user._id })),
+    );
+
+    return NextResponse.json({ ok: true }, { status: 201 });
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Registration failed. Please try again." },
+      { status: 500 },
+    );
+  }
 }

@@ -81,6 +81,8 @@ Project conventions live as Skills under `.claude/skills/` (not a `docs/` folder
 | `security` | Any secrets, env vars, auth guards, data exposure, deployment, `.env` files |
 | `errors-and-validation` | Any error handling, input validation, Zod schemas, user-facing error messages |
 | `best-practices` | Any React/Next.js code — performance, re-renders, waterfalls, bundle size |
+| `data-fetching` | Any data read, Server Component query, dashboard aggregation, or passing data to Client Components |
+| `data-mutations` | Any Server Action, data create/update/delete, Zod-validated mutation input, or revalidation |
 | `ai-workflow` | **Every task** — defines the plan-first, approve-before-code workflow |
 
 **Rules:**

@@ -1,0 +1,1 @@
+- [Project Data Model](project-data-model.md) — Four Mongoose models (User, Category, Transaction, MonthlyBudget), their indexes, cents convention, and current API consumers
