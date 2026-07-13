@@ -1,0 +1,1 @@
+- [next-auth CredentialsProvider authorize location](feedback_nextauth_credentials_authorize.md) — real `authorize` is in `.options.authorize`, not `.authorize` (which is always `() => null`)
