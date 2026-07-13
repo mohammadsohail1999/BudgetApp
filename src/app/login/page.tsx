@@ -1,10 +1,15 @@
 "use client";
 
 import AuthCard from "@/components/AuthCard";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import MuiLink from "@mui/material/Link";
+import TextField from "@mui/material/TextField";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useState } from "react";
 
 interface FormValues {
   email: string;
@@ -35,15 +40,17 @@ function validate(values: FormValues): FormErrors {
   return errors;
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const [values, setValues] = useState<FormValues>({ email: "", password: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/app/dashboard";
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setValues((prev) => ({ ...prev, [name]: value }));
-    // Clear the field error on change
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -62,8 +69,18 @@ export default function LoginPage() {
     setErrors({});
 
     try {
-      // TODO: replace with real auth call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setErrors({ form: "Invalid email or password." });
+      } else {
+        router.push(callbackUrl);
+        router.refresh();
+      }
     } catch {
       setErrors({ form: "Something went wrong. Please try again." });
     } finally {
@@ -80,16 +97,18 @@ export default function LoginPage() {
       footerLinkHref="/signup"
     >
       {errors.form && (
-        <div
-          role="alert"
-          className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
+        <Alert severity="error" sx={{ mb: 3 }}>
           {errors.form}
-        </div>
+        </Alert>
       )}
 
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-        <Input
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        noValidate
+        sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+      >
+        <TextField
           id="email"
           name="email"
           type="email"
@@ -98,33 +117,63 @@ export default function LoginPage() {
           autoComplete="email"
           value={values.email}
           onChange={handleChange}
-          error={errors.email}
+          error={!!errors.email}
+          helperText={errors.email}
+          fullWidth
         />
 
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          label="Password"
-          labelSuffix={
-            <Link
+        <Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 0.5,
+            }}
+          >
+            <Box />
+            <MuiLink
+              component={Link}
               href="#"
-              className="text-xs font-medium text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+              variant="caption"
+              underline="hover"
             >
               Forgot password?
-            </Link>
-          }
-          placeholder="••••••••"
-          autoComplete="current-password"
-          value={values.password}
-          onChange={handleChange}
-          error={errors.password}
-        />
+            </MuiLink>
+          </Box>
+          <TextField
+            id="password"
+            name="password"
+            type="password"
+            label="Password"
+            placeholder="••••••••"
+            autoComplete="current-password"
+            value={values.password}
+            onChange={handleChange}
+            error={!!errors.password}
+            helperText={errors.password}
+            fullWidth
+          />
+        </Box>
 
-        <Button type="submit" fullWidth disabled={isSubmitting}>
+        <Button
+          type="submit"
+          variant="contained"
+          size="large"
+          fullWidth
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Signing in…" : "Sign in"}
         </Button>
-      </form>
+      </Box>
     </AuthCard>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

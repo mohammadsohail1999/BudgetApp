@@ -1,3 +1,8 @@
+---
+name: auth
+description: Use when implementing or modifying authentication in this budget-app project — NextAuth v4 config, session access, the proxy.ts route-protection file, registration, or per-user data isolation.
+---
+
 # Authentication Conventions
 
 ## Stack
@@ -16,8 +21,9 @@
 | `src/lib/auth.ts` | NextAuth config object — `authOptions` exported for reuse |
 | `src/app/api/auth/[...nextauth]/route.ts` | Mounts NextAuth handler for App Router |
 | `src/app/api/auth/register/route.ts` | Custom registration endpoint |
-| `src/middleware.ts` | Edge middleware — protects all routes by default |
+| `src/proxy.ts` | Proxy (Next.js 16) — protects all routes by default |
 | `src/types/next-auth.d.ts` | Module augmentation — adds `id` to `session.user` |
+| `src/components/SessionProvider.tsx` | Client wrapper for NextAuth `SessionProvider` |
 
 ---
 
@@ -164,51 +170,72 @@ export async function POST(req: NextRequest) {
 
 ---
 
-## Middleware (`src/middleware.ts`)
+## Proxy (`src/proxy.ts`)
 
-All routes are protected by default. Public paths are excluded via the `matcher` pattern. NextAuth v4's `withAuth` helper handles the redirect automatically.
+> **Next.js 16 breaking change**: Middleware has been renamed to **Proxy**. The file is `src/proxy.ts` (not `middleware.ts`). The function is exported as `proxy` or as a default export.
+
+All routes are protected by default. Public paths are excluded explicitly. Uses `getToken` from `next-auth/jwt` to check for a valid session.
 
 ```ts
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export default withAuth(
-  function middleware(req) {
-    const { pathname } = req.nextUrl;
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-    // Redirect authenticated users away from auth pages
-    const authPages = ["/login", "/signup"];
-    if (req.nextauth.token && authPages.some((p) => pathname.startsWith(p))) {
-      return NextResponse.redirect(new URL("/", req.url));
+  // Public routes — skip auth check
+  const publicPaths = ["/login", "/signup", "/api/auth"];
+  const isPublic = publicPaths.some((path) => pathname.startsWith(path));
+
+  if (isPublic) {
+    // Authenticated user hitting /login or /signup → redirect to dashboard
+    if (pathname === "/login" || pathname === "/signup") {
+      const token = await getToken({
+        req: request,
+        secret: process.env.NEXTAUTH_SECRET,
+      });
+      if (token) {
+        return NextResponse.redirect(new URL("/app/dashboard", request.url));
+      }
     }
-
     return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized({ token }) {
-        return !!token;
-      },
-    },
-    pages: {
-      signIn: "/login",
-    },
   }
-);
+
+  // Check for valid session token
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  // Unauthenticated → redirect to login
+  if (!token && pathname.startsWith("/app")) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Unauthenticated API request → 401
+  if (!token && pathname.startsWith("/api")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  // Protect everything except static assets, NextAuth API, and public auth pages
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api/auth|login|signup).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
 ```
 
 **Rules:**
-- `withAuth` automatically redirects unauthenticated requests to `pages.signIn`
-- The `matcher` is the gate — any path not excluded is protected
-- To make a new route public, add it to the `matcher` exclusion pattern
-- Authenticated users hitting `/login` or `/signup` are redirected to `/`
+- Uses `getToken()` from `next-auth/jwt` — works at the edge without DB access
+- The `matcher` excludes static assets; the function itself handles public vs protected logic
+- To make a new route public, add it to the `publicPaths` array
+- Authenticated users hitting `/login` or `/signup` are redirected to `/app/dashboard`
+- Unauthenticated API requests get a 401 JSON response (not a redirect)
 
 ---
 

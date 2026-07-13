@@ -36,6 +36,9 @@ yarn-error.log*
 # MCP server config — contains live DB credentials, never commit
 .vscode/mcp.json
 
+# Claude Code local settings — holds secret values for .mcp.json env expansion, never commit
+.claude/settings.local.json
+
 # vercel
 .vercel
 

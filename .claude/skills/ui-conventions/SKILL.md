@@ -1,3 +1,8 @@
+---
+name: ui-conventions
+description: Use when building or editing any UI component, page, layout, theme/dark-mode logic, form, or data display in this budget-app project. Covers MUI-only styling, theme tokens, layout shell, forms, buttons, cards, data tables, charts, loading/empty states, accessibility, and notifications.
+---
+
 # UI Conventions
 
 ## Stack

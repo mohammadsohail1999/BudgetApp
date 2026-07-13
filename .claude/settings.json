@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "deny": [
+      "mcp__github"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$f = ([Console]::In.ReadToEnd() | ConvertFrom-Json).tool_input.file_path; if ($f -match '[.](ts|tsx|js|jsx|mjs)$') { npx eslint --fix $f 2>$null }",
+            "timeout": 30,
+            "statusMessage": "ESLint fixing..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,8 +1,12 @@
 "use client";
 
 import AuthCard from "@/components/AuthCard";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 interface FormValues {
@@ -57,6 +61,7 @@ export default function SignupPage() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -79,8 +84,38 @@ export default function SignupPage() {
     setErrors({});
 
     try {
-      // TODO: replace with real auth call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrors({
+          form: data.error ?? "Registration failed. Please try again.",
+        });
+        return;
+      }
+
+      // Auto-login after successful registration
+      const signInRes = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (signInRes?.error) {
+        router.push("/login");
+      } else {
+        router.push("/app/dashboard");
+        router.refresh();
+      }
     } catch {
       setErrors({ form: "Something went wrong. Please try again." });
     } finally {
@@ -97,16 +132,18 @@ export default function SignupPage() {
       footerLinkHref="/login"
     >
       {errors.form && (
-        <div
-          role="alert"
-          className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
+        <Alert severity="error" sx={{ mb: 3 }}>
           {errors.form}
-        </div>
+        </Alert>
       )}
 
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-        <Input
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        noValidate
+        sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+      >
+        <TextField
           id="name"
           name="name"
           type="text"
@@ -115,10 +152,12 @@ export default function SignupPage() {
           autoComplete="name"
           value={values.name}
           onChange={handleChange}
-          error={errors.name}
+          error={!!errors.name}
+          helperText={errors.name}
+          fullWidth
         />
 
-        <Input
+        <TextField
           id="email"
           name="email"
           type="email"
@@ -127,10 +166,12 @@ export default function SignupPage() {
           autoComplete="email"
           value={values.email}
           onChange={handleChange}
-          error={errors.email}
+          error={!!errors.email}
+          helperText={errors.email}
+          fullWidth
         />
 
-        <Input
+        <TextField
           id="password"
           name="password"
           type="password"
@@ -139,10 +180,12 @@ export default function SignupPage() {
           autoComplete="new-password"
           value={values.password}
           onChange={handleChange}
-          error={errors.password}
+          error={!!errors.password}
+          helperText={errors.password}
+          fullWidth
         />
 
-        <Input
+        <TextField
           id="confirmPassword"
           name="confirmPassword"
           type="password"
@@ -151,13 +194,21 @@ export default function SignupPage() {
           autoComplete="new-password"
           value={values.confirmPassword}
           onChange={handleChange}
-          error={errors.confirmPassword}
+          error={!!errors.confirmPassword}
+          helperText={errors.confirmPassword}
+          fullWidth
         />
 
-        <Button type="submit" fullWidth disabled={isSubmitting}>
+        <Button
+          type="submit"
+          variant="contained"
+          size="large"
+          fullWidth
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Creating account…" : "Create account"}
         </Button>
-      </form>
+      </Box>
     </AuthCard>
   );
 }

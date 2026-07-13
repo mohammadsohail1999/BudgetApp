@@ -69,20 +69,22 @@ public/             # Static assets served at /
 - **Co-locate** — keep component, styles, and tests near the feature they serve
 - **Env vars** — prefix browser-exposed vars with `NEXT_PUBLIC_`; never hardcode secrets
 
-## Project Docs — Read Before Implementing
+## Project Skills — Binding Conventions
 
-The `docs/` folder contains binding conventions for this project. Before writing any code, read every doc that is relevant to the feature being implemented. These docs take precedence over general best practices.
+Project conventions live as Skills under `.claude/skills/` (not a `docs/` folder). Each skill's `description` frontmatter tells you when it applies — pull in the relevant skill(s) before writing code in that area:
 
-| Doc | Read before working on... |
+| Skill | Applies to |
 |---|---|
-| [`docs/ui.md`](docs/ui.md) | Any UI component, page, layout, theme, dark mode, forms, data display |
-| [`docs/conventions.md`](docs/conventions.md) | Any new file, naming, folder structure, TypeScript patterns |
-| [`docs/api.md`](docs/api.md) | Any Route Handler, Server Action, request validation, API response |
-| [`docs/database.md`](docs/database.md) | Any Mongoose model, query, aggregation, index, or DB utility |
-| [`docs/auth.md`](docs/auth.md) | Any authentication, session access, middleware, or protected route |
+| `ui-conventions` | Any UI component, page, layout, theme, dark mode, forms, data display |
+| `auth` | Any authentication, session access, proxy/middleware, or protected route |
+| `routing` | Any new route, page, layout, navigation, dynamic segment, proxy, or API route structure |
+| `security` | Any secrets, env vars, auth guards, data exposure, deployment, `.env` files |
+| `errors-and-validation` | Any error handling, input validation, Zod schemas, user-facing error messages |
+| `best-practices` | Any React/Next.js code — performance, re-renders, waterfalls, bundle size |
+| `ai-workflow` | **Every task** — defines the plan-first, approve-before-code workflow |
 
 **Rules:**
-- If a doc exists for the area you are touching, you **must** read it before writing code.
-- If a decision in the docs conflicts with your training data or general conventions, **the doc wins**.
-- If you introduce a pattern not covered by any doc, flag it and suggest updating the relevant doc.
-- If a doc does not exist yet, follow the patterns already established in the codebase.
+- If a skill applies to the area you are touching, you **must** load it before writing code.
+- If a decision in a skill conflicts with your training data or general conventions, **the skill wins**.
+- If you introduce a pattern not covered by any skill, flag it and suggest adding it to the relevant skill.
+- If no skill exists yet for an area (e.g. Mongoose models, general file/naming conventions), follow the patterns already established in the codebase and suggest creating a new skill.
