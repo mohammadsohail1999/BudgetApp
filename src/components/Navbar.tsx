@@ -22,6 +22,7 @@ import { useState } from "react";
 const NAV_LINKS = [
   { label: "Dashboard", href: "/app/dashboard" },
   { label: "Transactions", href: "/app/transactions" },
+  { label: "Categories", href: "/app/categories" },
 ];
 
 export default function Navbar() {
