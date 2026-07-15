@@ -86,7 +86,27 @@ export interface MonthlySummary {
   totalIncome: number; // cents
   totalExpenses: number; // cents
   net: number; // totalIncome - totalExpenses
+  transactionCount: number;
   byCategory: CategorySpending[];
+}
+
+export interface MonthlyTrendItem {
+  year: number;
+  month: number; // 1–12
+  totalIncome: number; // cents
+  totalExpenses: number; // cents
+  net: number; // cents
+}
+
+export interface RecentTransaction {
+  id: string;
+  type: TransactionType;
+  amount: number; // cents
+  description?: string;
+  date: string; // YYYY-MM-DD
+  categoryName: string;
+  categoryColor: string;
+  categoryIcon: string;
 }
 
 // ---------------------------------------------------------------------------
