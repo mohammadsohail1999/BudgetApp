@@ -38,6 +38,9 @@ jobs:
 
       - name: Build
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI_PREVIEW }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
 
       - name: Deploy to Vercel (preview)
         id: deploy
